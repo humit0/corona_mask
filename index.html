@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공적 마스크 조회</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript"
+        src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=kh7fi0qf7e"></script>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
+</head>
+
+<body>
+    <div id="map" style="width:100%;height:100%;">
+        <div id="wrap">
+            <h2>공적 마스크 재고 확인</h2>
+            <p>재고가 없는 경우에는 붉은색으로 재고가 있는 경우에는 푸른색으로 표시됩니다.</p>
+            <p id="can_buy">오늘은 모두 구입 가능합니다.</p>
+        </div>
+    </div>
+    <script src="js/main.min.js"></script>
+</body>
+
+</html>
