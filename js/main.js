@@ -135,7 +135,7 @@ window.addEventListener("load", function() {
   var can_buy = document.getElementById("can_buy");
   var day = new Date().getDay();
   var buyer;
-  if (1 <= day && day <= 4) {
+  if (1 <= day && day <= 5) {
     buyer = "XXX" + day + "년생과 XXX" + ((day + 5) % 10) + "년생의";
   } else {
     buyer = "모두";
