@@ -14,7 +14,7 @@ body {
   position: absolute;
   top: 0px;
   left: 0px;
-  padding: 20px;
+  padding: 0px 10px;
   z-index: 40;
   width: 100%;
   background-color: #fefefe;
@@ -24,6 +24,7 @@ body {
 #wrap p {
   word-break: keep-all;
   word-wrap: break-word;
+  margin: 0.7em 0px;
 }
 
 .in_stock h3 {
