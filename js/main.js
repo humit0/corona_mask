@@ -20,6 +20,23 @@
     }
     return "";
   }
+  function formatDate(date) {
+    date = date.split(" ");
+    var day = date[0].split("/"),
+      time = date[1].split(":");
+    return day[1] + "월 " + day[2] + "일 " + time[0] + "시 " + time[1] + "분";
+  }
+
+  var can_buy = document.getElementById("can_buy");
+  var day = new Date().getDay();
+  var buyer;
+  if (1 <= day && day <= 5) {
+    buyer = "XXX" + day + "년생, XXX" + ((day + 5) % 10) + "년생";
+  } else {
+    buyer = "모두";
+  }
+  can_buy.innerText = "구매 가능: " + buyer;
+
   var lat = 37.4501089;
   var lng = 126.9528387;
   var radius = 500;
@@ -28,21 +45,7 @@
     center: loc,
     zoom: 15
   });
-  var red_marker = {
-    content: '<img src="img/sold-out.png">',
-    size: {
-      width: 30,
-      height: 30
-    }
-  };
 
-  var blue_marker = {
-    content: '<img src="img/in-stock.png">',
-    size: {
-      width: 30,
-      height: 30
-    }
-  };
   var circle = new naver.maps.Circle({
     map: map,
     center: loc,
@@ -59,34 +62,48 @@
   xhr.onreadystatechange = function() {
     if (xhr.readyState === XMLHttpRequest.DONE) {
       if (xhr.status === 200) {
-        markers.map(function(marker) {
-          marker[0].setMap(null);
-          marker[1].setMap(null);
-        });
+        var iconMapper = {
+          plenty: '<img src="img/plenty.png">',
+          some: '<img src="img/some.png">',
+          few: '<img src="img/few.png">',
+          empty: '<img src="img/empty.png">'
+        };
+        var contentMapper = {
+          plenty: "100-",
+          some: "30-100",
+          few: "1-30",
+          empty: "0"
+        };
         markers = JSON.parse(xhr.responseText).stores.map(function(item) {
+          // null check
+          item.remain_stat = item.remain_stat || "empty";
           var marker = new naver.maps.Marker({
             position: new naver.maps.LatLng(item.lat, item.lng),
             map: map,
-            icon: item.sold_out ? red_marker : blue_marker
+            icon: {
+              content: iconMapper[item.remain_stat],
+              size: {
+                width: 30,
+                height: 30
+              }
+            }
           });
-          var stock_t = item.stock_t.split(":");
           var content = [
-            '<div class="info_box ' +
-              (item.sold_out ? "sold_out" : "in_stock") +
-              '">',
+            '<div class="info_box ' + item.remain_stat + '">',
             "  <h3>" + item.name + "</h3>",
             '  <p class="addr">' + item.addr + "</p>",
-            "  <p>재고: " +
-              item.remain_cnt +
-              "/" +
-              item.stock_cnt +
-              " | " +
-              stock_t[0] +
-              "시 " +
-              stock_t[1] +
-              "분 입고</p>",
+            '  <p>재고: <span class="stock_status">' +
+              contentMapper[item.remain_stat] +
+              "</p>",
+            item.stock_at
+              ? "  <p>입고시간: " + formatDate(item.stock_at) + "</p>"
+              : "",
+            item.created_at
+              ? "<p>업데이트: " + formatDate(item.created_at) + "</p>"
+              : "",
             "</div>"
           ].join("");
+          console.log(content);
 
           var infobox = new naver.maps.InfoWindow({
             content: content,
@@ -108,6 +125,10 @@
   function moveCenter(center) {
     var lat = center["_lat"],
       lng = center["_lng"];
+    markers.map(function(marker) {
+      marker[0].setMap(null);
+      marker[1].setMap(null);
+    });
     xhr.open(
       "GET",
       "https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=" +
@@ -126,31 +147,17 @@
     var center = map.getCenter();
     moveCenter(center);
   }
-  window.addEventListener("load", function() {
-    // 구매 가능 조건 출력
-    var can_buy = document.getElementById("can_buy");
-    var day = new Date().getDay();
-    var buyer;
-    if (1 <= day && day <= 5) {
-      buyer = "XXX" + day + "년생과 XXX" + ((day + 5) % 10) + "년생의";
-    } else {
-      buyer = "모두";
-    }
-    can_buy.innerText = "오늘은 " + buyer + " 구입 가능합니다.";
+  document.getElementById("agree_btn").addEventListener("click", function() {
+    setCookie("agree", "1");
+    document.getElementById("disable_area").style.display = "none";
+    document.getElementById("agreement").style.display = "none";
+  });
 
+  window.addEventListener("load", function() {
     // 이전에 지연 동의를 했는지 확인
     if (getCookie("agree") !== "1") {
-      // 사용자 지연 동의 여부 확인
-      var ok = confirm(
-        "제공되는 정보는 5분 이상 지연된 데이터입니다. 이에 동의하시겠습니까?"
-      );
-      if (ok) {
-        setCookie("agree", 1, 365);
-      } else {
-        // 동의하지 않은 경우 사용이 불가하다고 알림
-        alert("동의를 하지 않아 해당 서비스 사용이 불가합니다.");
-        return;
-      }
+      document.getElementById("disable_area").style.display = "block";
+      document.getElementById("agreement").style.display = "block";
     }
 
     // 하단에 반경 버튼 추가 및 이벤트 등록
