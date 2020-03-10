@@ -142,10 +142,16 @@ a {
   z-index: 200;
   background-color: white;
   padding: 1rem 0 1rem 0;
-  width: 50%;
+  width: 70%;
+  max-width: 31rem;
   border-radius: 15px;
   margin: 0 auto;
   border: 1px solid #c6beca;
+}
+@media (max-width: 540px) {
+  .modal {
+    width: 100%;
+  }
 }
 
 .modal-title {
