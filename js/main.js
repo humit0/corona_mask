@@ -59,6 +59,7 @@
 
   var xhr = new XMLHttpRequest();
   var markers = [];
+  let url;
   xhr.onreadystatechange = function() {
     if (xhr.readyState === XMLHttpRequest.DONE) {
       if (xhr.status === 200) {
@@ -118,25 +119,38 @@
           return [marker, infobox];
         });
       } else {
-        alert("데이터 가져오기 에러");
+        if(url.includes("/v1/")){
+        moveCenter(map.getCenter(),true);
+        }else{
+          alert("불러오기 실패");
+        }
       }
     }
   };
-  function moveCenter(center) {
+  function moveCenter(center,isv1) {
     var lat = center["_lat"],
       lng = center["_lng"];
     markers.map(function(marker) {
       marker[0].setMap(null);
       marker[1].setMap(null);
     });
+    if(!isv1)
+    url ="https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=" +
+    lat +
+    "&lng=" +
+    lng +
+    "&m=" +
+    radius;
+    else
+    url ="https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v2/storesByGeo/json?lat=" +
+    lat +
+    "&lng=" +
+    lng +
+    "&m=" +
+    radius;
     xhr.open(
       "GET",
-      "https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=" +
-        lat +
-        "&lng=" +
-        lng +
-        "&m=" +
-        radius
+      url
     );
     xhr.send();
     circle.setCenter(center);
