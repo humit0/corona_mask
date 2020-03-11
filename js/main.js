@@ -119,39 +119,38 @@
           return [marker, infobox];
         });
       } else {
-        if(url.includes("/v1/")){
-        moveCenter(map.getCenter(),true);
-        }else{
+        if (url.includes("/v1/")) {
+          moveCenter(map.getCenter(), true);
+        } else {
           alert("불러오기 실패");
         }
       }
     }
   };
-  function moveCenter(center,isv1) {
+  function moveCenter(center, isv1) {
     var lat = center["_lat"],
       lng = center["_lng"];
     markers.map(function(marker) {
       marker[0].setMap(null);
       marker[1].setMap(null);
     });
-    if(!isv1)
-    url ="https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=" +
-    lat +
-    "&lng=" +
-    lng +
-    "&m=" +
-    radius;
+    if (!isv1)
+      url =
+        "https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=" +
+        lat +
+        "&lng=" +
+        lng +
+        "&m=" +
+        radius;
     else
-    url ="https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v2/storesByGeo/json?lat=" +
-    lat +
-    "&lng=" +
-    lng +
-    "&m=" +
-    radius;
-    xhr.open(
-      "GET",
-      url
-    );
+      url =
+        "https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v2/storesByGeo/json?lat=" +
+        lat +
+        "&lng=" +
+        lng +
+        "&m=" +
+        radius;
+    xhr.open("GET", url);
     xhr.send();
     circle.setCenter(center);
   }
