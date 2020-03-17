@@ -67,57 +67,60 @@
           plenty: '<img src="img/plenty.png">',
           some: '<img src="img/some.png">',
           few: '<img src="img/few.png">',
-          empty: '<img src="img/empty.png">'
+          empty: '<img src="img/empty.png">',
+          break: '<img src="img/empty.png">'
         };
         var contentMapper = {
           plenty: "100-",
           some: "30-100",
           few: "1-30",
-          empty: "0"
+          empty: "0",
+          break: "판매 중지"
         };
-        markers = JSON.parse(xhr.responseText).stores.map(function(item) {
-          // null check
-          item.remain_stat = item.remain_stat || "empty";
-          var marker = new naver.maps.Marker({
-            position: new naver.maps.LatLng(item.lat, item.lng),
-            map: map,
-            icon: {
-              content: iconMapper[item.remain_stat],
-              size: {
-                width: 30,
-                height: 30
+        markers = JSON.parse(xhr.responseText)
+          .stores.filter(function(item) {
+            return !!item.remain_stat;
+          })
+          .map(function(item) {
+            var marker = new naver.maps.Marker({
+              position: new naver.maps.LatLng(item.lat, item.lng),
+              map: map,
+              icon: {
+                content: iconMapper[item.remain_stat],
+                size: {
+                  width: 30,
+                  height: 30
+                }
               }
-            }
-          });
-          var content = [
-            '<div class="info_box ' + item.remain_stat + '">',
-            "  <h3>" + item.name + "</h3>",
-            '  <p class="addr">' + item.addr + "</p>",
-            '  <p>재고: <span class="stock_status">' +
-              contentMapper[item.remain_stat] +
-              "</p>",
-            item.stock_at
-              ? "  <p>입고시간: " + formatDate(item.stock_at) + "</p>"
-              : "",
-            item.created_at
-              ? "<p>업데이트: " + formatDate(item.created_at) + "</p>"
-              : "",
-            "</div>"
-          ].join("");
-          console.log(content);
+            });
+            var content = [
+              '<div class="info_box ' + item.remain_stat + '">',
+              "  <h3>" + item.name + "</h3>",
+              '  <p class="addr">' + item.addr + "</p>",
+              '  <p>재고: <span class="stock_status">' +
+                contentMapper[item.remain_stat] +
+                "</p>",
+              item.stock_at
+                ? "  <p>입고시간: " + formatDate(item.stock_at) + "</p>"
+                : "",
+              item.created_at
+                ? "<p>업데이트: " + formatDate(item.created_at) + "</p>"
+                : "",
+              "</div>"
+            ].join("");
 
-          var infobox = new naver.maps.InfoWindow({
-            content: content,
-            maxWidth: 280,
-            pixelOffset: new naver.maps.Point(0, -20),
-            disableAutoPan: true
+            var infobox = new naver.maps.InfoWindow({
+              content: content,
+              maxWidth: 280,
+              pixelOffset: new naver.maps.Point(0, -20),
+              disableAutoPan: true
+            });
+            naver.maps.Event.addListener(marker, "click", function(e) {
+              if (infobox.getMap()) infobox.close();
+              else infobox.open(map, marker);
+            });
+            return [marker, infobox];
           });
-          naver.maps.Event.addListener(marker, "click", function(e) {
-            if (infobox.getMap()) infobox.close();
-            else infobox.open(map, marker);
-          });
-          return [marker, infobox];
-        });
       } else {
         if (url.includes("/v1/")) {
           moveCenter(map.getCenter(), true);
